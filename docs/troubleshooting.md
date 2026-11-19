@@ -115,3 +115,6 @@ before that existed, the files are:
 
 Remove those three paths. Restore `~/.local/bin/opencode` if it held something
 else before.
+
+Moving this to a different agent? See [porting.md](porting.md) for the
+dispatcher contract and the adapter invariants.
