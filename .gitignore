@@ -1,0 +1,14 @@
+*.bak-*
+*.tar.gz
+.DS_Store
+
+# Audio assets are NOT redistributed: supply your own (see README).
+plugin/sounds/*.wav
+plugin/sounds/*.mp3
+plugin/sounds/*.m4a
+plugin/sounds/*.ogg
+plugin/sounds/*.flac
+
+# Python bytecode
+__pycache__/
+*.pyc

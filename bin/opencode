@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# opencode launcher wrapper: plays error.wav when the CLI exits with a real
+# failure. Installed to ~/.local/bin so it shadows the real binary in PATH.
+#
+# The real binary is located by absolute path (not PATH) to avoid recursion.
+# Override with OPENCODE_REAL_BIN if yours lives elsewhere.
+set -u
+
+real="${OPENCODE_REAL_BIN:-$HOME/.opencode/bin/opencode}"
+
+if [ ! -x "$real" ]; then
+  printf 'opencode wrapper: real binary not found at %s\n' "$real" >&2
+  printf 'Set OPENCODE_REAL_BIN to the actual opencode binary and retry.\n' >&2
+  exit 127
+fi
+
+"$real" "$@"
+rc=$?
+
+# 130 is SIGINT (Ctrl+C). A user cancellation is not an error worth a sound.
+if [ "$rc" -ne 0 ] && [ "$rc" -ne 130 ]; then
+  notify="${SOUND_NOTIFY_PY:-${XDG_CONFIG_HOME:-$HOME/.config}/opencode/plugins/sounds/notify.py}"
+  if [ -f "$notify" ]; then
+    python3 "$notify" error >/dev/null 2>&1 &
+  fi
+fi
+
+exit "$rc"
