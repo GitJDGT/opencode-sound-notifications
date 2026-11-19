@@ -177,6 +177,11 @@ resolving.
   forbids redistributing the audio on a standalone basis. Pick sounds you have
   the rights to use.
 
+## Troubleshooting
+
+Prompts that never sound, events that look dead, and how to instrument the
+plugin: see [docs/troubleshooting.md](docs/troubleshooting.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Applies to the code in this repository only.
