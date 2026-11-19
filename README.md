@@ -1,4 +1,4 @@
-# opencode-sound-notify
+# opencode-sound-notifications
 
 Non-blocking sound notifications for [OpenCode](https://opencode.ai) on WSL2.
 
@@ -58,8 +58,8 @@ Native Linux and macOS are not supported: there is no `powershell.exe` and no
 ## Install from a clone
 
 ```bash
-git clone https://github.com/GitJDGT/opencode-sound-notify.git
-cd opencode-sound-notify
+git clone https://github.com/GitJDGT/opencode-sound-notifications.git
+cd opencode-sound-notifications
 ./install.sh --sounds ~/Downloads/my-sounds
 ```
 
@@ -152,7 +152,7 @@ without touching anything, add `--dry-run` to any install or uninstall command.
 git init
 git add -A
 git commit -m "feat: opencode sound notifications with bring-your-own sounds"
-gh repo create opencode-sound-notify --public --source . --remote origin --push
+gh repo create opencode-sound-notifications --public --source . --remote origin --push
 git tag v1.0.0
 git push origin v1.0.0
 ```

@@ -8,7 +8,7 @@
 # Nothing is deleted without a timestamped backup next to the original.
 set -euo pipefail
 
-REPO="${SOUND_NOTIFY_REPO:-GitJDGT/opencode-sound-notify}"
+REPO="${SOUND_NOTIFY_REPO:-GitJDGT/opencode-sound-notifications}"
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 SOUNDS_DIR="$PLUGIN_DIR/sounds"
