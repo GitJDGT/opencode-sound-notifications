@@ -105,7 +105,28 @@ installed_version() {
 
 # Ownership manifest: every path this installer created or replaced. Uninstall
 # only touches these, so user-supplied sounds are never deleted by accident.
-record_file() { INSTALLED_FILES+=("$1"); }
+record_file() {
+  local f
+  if [ "${#INSTALLED_FILES[@]}" -gt 0 ]; then
+    for f in "${INSTALLED_FILES[@]}"; do
+      [ "$f" = "$1" ] && return 0
+    done
+  fi
+  INSTALLED_FILES+=("$1")
+}
+
+# Copy only when the bytes differ, so reinstalling does not churn backups.
+copy_if_changed() {
+  local src="$1" dest="$2"
+  if [ -e "$dest" ] && cmp -s "$src" "$dest"; then
+    log "unchanged: $(basename "$dest")"
+    record_file "$dest"
+    return 0
+  fi
+  backup_if_exists "$dest"
+  run cp "$src" "$dest"
+  record_file "$dest"
+}
 
 marker_write() {
   local version="unknown"
@@ -178,8 +199,7 @@ import_sounds() {
 
     dest="$SOUNDS_DIR/$ev.wav"
     if [ "$ext" = "wav" ]; then
-      backup_if_exists "$dest"
-      run cp "$src" "$dest"
+      copy_if_changed "$src" "$dest"
     else
       rc=0
       convert_one "$src" "$dest" || rc=$?
@@ -191,8 +211,8 @@ import_sounds() {
         continue
       fi
       log "converted: $(basename "$src") -> $ev.wav"
+      record_file "$dest"
     fi
-    record_file "$dest"
   done
 }
 
@@ -294,20 +314,15 @@ install_plugin() {
   [ -f "$SRC/plugin/sounds/notify.py" ] || die "missing $SRC/plugin/sounds/notify.py"
 
   run mkdir -p "$SOUNDS_DIR"
-  backup_if_exists "$PLUGIN_DIR/sound-notify.ts"
-  run cp "$SRC/plugin/sound-notify.ts" "$PLUGIN_DIR/sound-notify.ts"
-  record_file "$PLUGIN_DIR/sound-notify.ts"
+  copy_if_changed "$SRC/plugin/sound-notify.ts" "$PLUGIN_DIR/sound-notify.ts"
 
   local wav
   for wav in "$SRC"/plugin/sounds/*.wav; do
     [ -f "$wav" ] || continue
-    run cp "$wav" "$SOUNDS_DIR/"
-    record_file "$SOUNDS_DIR/$(basename "$wav")"
+    copy_if_changed "$wav" "$SOUNDS_DIR/$(basename "$wav")"
   done
-  backup_if_exists "$SOUNDS_DIR/notify.py"
-  run cp "$SRC/plugin/sounds/notify.py" "$SOUNDS_DIR/notify.py"
+  copy_if_changed "$SRC/plugin/sounds/notify.py" "$SOUNDS_DIR/notify.py"
   run chmod +x "$SOUNDS_DIR/notify.py"
-  record_file "$SOUNDS_DIR/notify.py"
 
   log "plugin:  $PLUGIN_DIR/sound-notify.ts"
   log "sounds:  $SOUNDS_DIR"
@@ -316,12 +331,8 @@ install_plugin() {
 install_wrapper() {
   [ -f "$SRC/bin/opencode" ] || die "missing $SRC/bin/opencode"
   run mkdir -p "$BIN_DIR"
-  if [ -e "$BIN_DIR/opencode" ] && ! cmp -s "$SRC/bin/opencode" "$BIN_DIR/opencode"; then
-    backup_if_exists "$BIN_DIR/opencode"
-  fi
-  run cp "$SRC/bin/opencode" "$BIN_DIR/opencode"
+  copy_if_changed "$SRC/bin/opencode" "$BIN_DIR/opencode"
   run chmod +x "$BIN_DIR/opencode"
-  record_file "$BIN_DIR/opencode"
   log "wrapper: $BIN_DIR/opencode"
 }
 
