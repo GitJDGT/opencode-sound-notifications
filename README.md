@@ -102,6 +102,18 @@ Reinstalling or updating always backs up the files it replaces, so a downgrade
 is just another `--from-release`. Restart OpenCode afterwards so the new plugin
 is loaded.
 
+Two invariants keep release resolution honest, and neither is obvious from the
+code:
+
+- The tag and `VERSION` must match; `--check` compares them, so a tag without a
+  matching `VERSION` reports the wrong version.
+- Tagging is not enough for the no-argument path: it resolves the latest
+  **Release**, so create one with `gh release create` alongside the tag.
+
+Audio is excluded by `.gitignore`, so a public push ships code only. If you want
+your own sounds versioned as a backup, keep a separate private repository or
+archive — do not force-add them here.
+
 ## Verify
 
 ```bash
@@ -145,26 +157,6 @@ VERSION                      Version written into the install manifest
 manifest with the version, the source and one `file=` line per managed path.
 Every file it replaces is backed up as `<name>.bak-<timestamp>`. For a preview
 without touching anything, add `--dry-run` to any install or uninstall command.
-
-## Publishing (maintainer)
-
-```bash
-git init
-git add -A
-git commit -m "feat: opencode sound notifications with bring-your-own sounds"
-gh repo create opencode-sound-notifications --public --source . --remote origin --push
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-Audio is excluded by `.gitignore`, so a public push ships code only. The
-maintainer's own sounds stay on disk and are simply never committed. If you want
-them versioned as a personal backup, keep a separate private repository or
-archive — do not force-add them here.
-
-`--from-release` works from the tag tarball alone; no release workflow is
-required. Keep the tag scheme `vX.Y.Z` so `--check` and `--from-release` keep
-resolving.
 
 ## Notes
 
